@@ -19,7 +19,7 @@ type employee struct{
 func getEmployeeDetails(id int) employee{
 	var index int = -1
 	for i := range company{
-		index += 1
+		index ++
 		if company[i].id == id{
 			break
 		}
@@ -39,7 +39,7 @@ func addEmployee(emp employee) []employee{
 func removeEmployee(id int) []employee{
 	var index int = -1
 	for i := range company{
-		index += 1
+		index ++
 		if company[i].id == id{
 			break
 		}
@@ -53,7 +53,7 @@ func removeEmployee(id int) []employee{
 func updateEmployee(emp employee) employee{
 	var index int = -1
 	for i := range company{
-		index += 1
+		index ++
 		if company[i].id == emp.id{
 			break
 		}
