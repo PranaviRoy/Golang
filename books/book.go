@@ -24,7 +24,7 @@ type Book struct {
 	ISBN            string `json:"ISBN"`
 }
 
-// our initial migration function
+//InitialMigration function creates the table for our model in our database
 func InitialMigration() {
 	db, err := gorm.Open("mysql", "user:password@(localhost)/books?parseTime=true")
 	if err != nil {
@@ -37,6 +37,7 @@ func InitialMigration() {
 	db.AutoMigrate(&Book{})
 }
 
+//AllBooks fetches all the books' data in JSON format
 func AllBooks(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("All Books Endpoint Hit")
@@ -53,6 +54,7 @@ func AllBooks(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(books)
 }
 
+//NewBook creates a inserts new tuple in our table
 func NewBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("New Book Endpoint Hit")
 
@@ -74,6 +76,7 @@ func NewBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Book info added successfully!")
 }
 
+//DeleteBook deletes corresponding tuple from our table
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Delete Book Endpoint Hit")
 
@@ -91,7 +94,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Book info deleted successfully!")
 }
 
-
+//UpdateBook function updates corresponding tuple's attributes
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Update Book Endpoint Hit")
 
@@ -115,7 +118,6 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 	book1.Author = book.Author
 	book1.Name = book.Name
 	book1.PublicationYear = book.PublicationYear
-	//book1 = book
 	db.Save(book1)
 	fmt.Fprintf(w, "Book info updated successfully!")	
 }
