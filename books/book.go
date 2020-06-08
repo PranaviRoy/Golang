@@ -93,5 +93,29 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 
 
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(w, "Update Book Endpoint Hit")
+	fmt.Println("Update Book Endpoint Hit")
+
+	db, err := gorm.Open("mysql", "user:password@(localhost)/books?parseTime=true")
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("failed to connect to the database!")
+	}
+	defer db.Close()
+	
+	vars := mux.Vars(r)
+
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintln(w, "check the structure!")
+	}
+	var book, book1 Book
+	json.Unmarshal(reqBody, &book)
+
+	db.Where("isbn = ?", vars["isbn"]).Find(&book1)
+	book1.Author = book.Author
+	book1.Name = book.Name
+	book1.PublicationYear = book.PublicationYear
+	//book1 = book
+	db.Save(book1)
+	fmt.Fprintf(w, "Book info updated successfully!")	
 }
