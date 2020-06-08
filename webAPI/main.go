@@ -30,7 +30,10 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 //Function to fetch employee data, given emp id
 func returnData(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, _ := strconv.Atoi(vars["id"])
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		fmt.Fprintln(w, "check the structure!")
+	}
 	var index int = -1
 	for i := range company {
 		index++
@@ -53,7 +56,10 @@ func returnAllData(w http.ResponseWriter, r *http.Request) {
 func addEmployee(w http.ResponseWriter, r *http.Request) {
 	// get the body of our POST request
 	// return the string response containing the request body
-	reqBody, _ := ioutil.ReadAll(r.Body)
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintln(w, "check the structure!")
+	}
 	var emp employee
 	json.Unmarshal(reqBody, &emp)
 	// update our global Articles array to include
@@ -68,11 +74,11 @@ func addEmployee(w http.ResponseWriter, r *http.Request) {
 func updateEmployee(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
-	if err != nil{
+	if err != nil {
 		fmt.Fprintln(w, "check the parameter passed!")
 	}
 	reqBody, err := ioutil.ReadAll(r.Body)
-	if err != nil{
+	if err != nil {
 		fmt.Fprintln(w, "check the structure!")
 	}
 	var emp employee
@@ -92,6 +98,26 @@ func updateEmployee(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(company)
 }
 
+//Function to remove employee data, given emp id
+func removeEmployee(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		fmt.Fprintln(w, "check the parameter passed!")
+	}
+	var index int = -1
+	for i := range company {
+		index++
+		if company[i].Id == id {
+			company = append(company[:index], company[index+1:]...)
+		}
+	}
+
+	fmt.Println("Emdpoint Hit: deleteData")
+	fmt.Fprintln(w, "Employee data removed!")
+	json.NewEncoder(w).Encode(company)
+}
+
 func handleRequests() {
 	// creates a new instance of a mux router
 	myRouter := mux.NewRouter().StrictSlash(true)
@@ -101,6 +127,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/empData/{id}", returnData).Methods("GET")
 	myRouter.HandleFunc("/addEmp", addEmployee).Methods("POST")
 	myRouter.HandleFunc("/updateEmp/{id}", updateEmployee).Methods("PUT")
+	myRouter.HandleFunc("/deleteData/{id}", removeEmployee).Methods("DELETE")
 	// finally, instead of passing in nil, we want
 	// to pass in our newly created router as the second
 	// argument
