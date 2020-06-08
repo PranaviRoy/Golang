@@ -3,9 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
+
+	//"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
 
@@ -23,7 +26,7 @@ type Book struct {
 
 // our initial migration function
 func InitialMigration() {
-	db, err := gorm.Open("mysql", "user:password@(localhost)/book?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", "user:password@(localhost)/books?parseTime=true")
 	if err != nil {
 		fmt.Println(err.Error())
 		panic("failed to connect to the database!")
@@ -38,7 +41,7 @@ func AllBooks(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(w, "All Books Endpoint Hit")
 
-	db, err := gorm.Open("mysql", "user:password@(localhost)/books?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", "user:password@(localhost)/books?parseTime=true")
 	if err != nil {
 		fmt.Println(err.Error())
 		panic("failed to connect to the database!")
@@ -53,19 +56,22 @@ func AllBooks(w http.ResponseWriter, r *http.Request) {
 func NewBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(w, "New Book Endpoint Hit")
 
-	db, err := gorm.Open("mysql", "user:password@(localhost)/books?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", "user:password@(localhost)/books?parseTime=true")
 	if err != nil {
 		fmt.Println(err.Error())
 		panic("failed to connect to the database!")
 	}
 	defer db.Close()
 
-	vars := mux.Vars(r)
-    name := vars["name"]
-    email := vars["email"]
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintln(w, "check the structure!")
+	}
+	var book Book
+	json.Unmarshal(reqBody, &book)
 
-    db.Create(&User{Name: name, Email: email})
-    fmt.Fprintf(w, "New User Successfully Created")
+	db.Create(&book)
+	fmt.Fprintf(w, "New User Successfully Created!")
 }
 
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
