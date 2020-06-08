@@ -17,7 +17,7 @@ func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", helloBooks)
 	myRouter.HandleFunc("/books", AllBooks).Methods("GET")
-	myRouter.HandleFunc("/book/{isbn}", DeleteBook).Methods("DELETE")
+	myRouter.HandleFunc("/deleteBook/{isbn}", DeleteBook).Methods("DELETE")
 	myRouter.HandleFunc("/book/{isbn}", UpdateBook).Methods("PUT")
 	myRouter.HandleFunc("/book", NewBook).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8081", myRouter))

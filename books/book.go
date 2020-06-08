@@ -8,7 +8,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	//"github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
 
@@ -39,7 +39,7 @@ func InitialMigration() {
 
 func AllBooks(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println(w, "All Books Endpoint Hit")
+	fmt.Println("All Books Endpoint Hit")
 
 	db, err := gorm.Open("mysql", "user:password@(localhost)/books?parseTime=true")
 	if err != nil {
@@ -54,7 +54,7 @@ func AllBooks(w http.ResponseWriter, r *http.Request) {
 }
 
 func NewBook(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(w, "New Book Endpoint Hit")
+	fmt.Println("New Book Endpoint Hit")
 
 	db, err := gorm.Open("mysql", "user:password@(localhost)/books?parseTime=true")
 	if err != nil {
@@ -71,12 +71,26 @@ func NewBook(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(reqBody, &book)
 
 	db.Create(&book)
-	fmt.Fprintf(w, "New User Successfully Created!")
+	fmt.Fprintf(w, "Book info added successfully!")
 }
 
 func DeleteBook(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(w, "Delete Book Endpoint Hit")
+	fmt.Println("Delete Book Endpoint Hit")
+
+	db, err := gorm.Open("mysql", "user:password@(localhost)/books?parseTime=true")
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("failed to connect to the database!")
+	}
+	defer db.Close()
+
+	vars := mux.Vars(r)
+	var book Book
+	db.Where("isbn = ?", vars["isbn"]).First(&book)
+	db.Delete(&book)
+	fmt.Fprintf(w, "Book info deleted successfully!")
 }
+
 
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(w, "Update Book Endpoint Hit")
