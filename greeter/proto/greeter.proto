@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package proto;
+option go_package = ".;proto";
+
+message Request {
+    string name = 1;
+    int64 times = 2;
+}
+
+message Response {
+    string reply = 1;
+}
+
+service GreetingService{
+    rpc Reply(Request) returns (Response);
+}
