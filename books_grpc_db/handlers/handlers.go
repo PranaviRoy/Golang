@@ -63,6 +63,36 @@ func FetchBooksHandler(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"result": response,
 		})
+		fmt.Println("Succesfully returning book details!")
+	} else {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println("Some error occured while fetching data!")
+	}
+}
+
+//UpdateBookHandler handles the request to modify the details of a particular book
+func UpdateBookHandler(ctx *gin.Context) {
+	client := connector.Connection()
+
+	bookID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		fmt.Println("Error in parsing book id param")
+	}
+	updatedBook := proto.Book{Id: int64(bookID)}
+	reqBody, err := ioutil.ReadAll(ctx.Request.Body)
+	fmt.Println(&reqBody)
+	if err != nil {
+		fmt.Println("Kindly check the book structure")
+	}
+
+	if res := json.Unmarshal(reqBody, &updatedBook); res != nil {
+		fmt.Println(res)
+	}
+	
+	if response, err := client.UpdateBook(ctx, &updatedBook); err == nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"result": fmt.Sprint(response),
+		})
 	} else {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}

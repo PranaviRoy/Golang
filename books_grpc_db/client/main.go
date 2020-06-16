@@ -12,6 +12,7 @@ func main() {
 	web.POST("/addBook", handlers.AddBookHandler)
 	web.GET("/fetchBook/:id", handlers.FetchBookHandler)
 	web.GET("/fetchBooks", handlers.FetchBooksHandler)
+	web.PUT("/updateBook/:id", handlers.UpdateBookHandler)
 
 	if err := web.Run(":4040"); err != nil {
 		log.Fatalf("Failed to run server: %v", err)

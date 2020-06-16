@@ -97,3 +97,32 @@ func (s *server) FetchBooks(ctx context.Context, Empty *emptypb.Empty) (*proto.R
 
 	return &proto.RepeatedResponse{Books: books}, nil
 }
+
+func (s *server) UpdateBook(ctx context.Context, request *proto.Book) (*proto.Response, error) {
+	db := database.Conn()
+	defer db.Close()
+
+	insForm, err := db.Prepare("UPDATE books SET name =?, author =?, publicationyear =?,isbn =?")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	res, err := insForm.Exec(request.GetName(), request.GetAuthor(), request.GetPublicationyear(), request.GetIsbn())
+	if err != nil {
+		log.Fatal(err)
+	}
+	lastID, err := res.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+	rowCnt, err := res.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	request.Id = int64(lastID)
+	log.Printf("ID = %d, affected = %d\n", lastID, rowCnt)
+	log.Println("UPDATE: Id: ", request.Id)
+	fmt.Println("Updated book successfully! ")
+
+	return &proto.Response{Result: "Updated book successfully!"}, nil
+}

@@ -24,7 +24,7 @@ message RepeatedResponse {
 service Operations {
     rpc AddBook(Book) returns (Response);
     rpc FetchBook(Book) returns (Book);
-    //rpc UpdateBook(Request) returns (Response);
+    rpc UpdateBook(Book) returns (Response);
     //rpc DeletedBook(Request) returns (Response);
     rpc FetchBooks(google.protobuf.Empty) returns (RepeatedResponse);
 }
