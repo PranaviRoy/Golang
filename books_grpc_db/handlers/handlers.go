@@ -3,7 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-
+"strconv"
 	"encoding/json"
 	"io/ioutil"
 
@@ -16,7 +16,7 @@ import (
 func AddBookHandler(ctx *gin.Context) {
 	client := connector.Connection()
 
-	newBook := proto.Request{}
+	newBook := proto.Book{}
 	reqBody, err := ioutil.ReadAll(ctx.Request.Body) //request body is defined to read the .json file body
 	fmt.Println(string(reqBody))
 	if err != nil {
@@ -29,6 +29,24 @@ func AddBookHandler(ctx *gin.Context) {
 	if response, err := client.AddBook(ctx, &newBook); err == nil {
 		ctx.JSON(http.StatusOK, gin.H{
 			"result": fmt.Sprint(response.Result),
+		})
+	} else {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+}
+
+//FetchBookHandler handles the get request to fetch book data
+func FetchBookHandler(ctx *gin.Context) {
+	client := connector.Connection()
+
+	bookID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		fmt.Println("Error in parsing cluster id param")
+	}
+	req := &proto.Book{Id: int64(bookID)}
+	if response, err := client.FetchBook(ctx, req); err == nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"result": response,
 		})
 	} else {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

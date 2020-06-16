@@ -10,6 +10,7 @@ import (
 func main() {
 	web := gin.Default()
 	web.POST("/addBook", handlers.AddBookHandler)
+	web.GET("/fetchBook/:id", handlers.FetchBookHandler)
 
 	if err := web.Run(":4040"); err != nil {
 		log.Fatalf("Failed to run server: %v", err)

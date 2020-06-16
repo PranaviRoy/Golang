@@ -3,7 +3,7 @@ syntax = "proto3";
 package services;
 option go_package = ".;proto";
 
-message Request {
+message Book {
     int64 id = 1;
     string name = 2;
     string author = 3;
@@ -18,12 +18,12 @@ message Response {
 message Empty {}
 
 message RepeatedResponse {
-    repeated Response books = 1;
+    repeated Book books = 1;
 }
 
 service Operations {
-    rpc AddBook(Request) returns (Response);
-    //rpc FetchBook(Request) returns (Response);
+    rpc AddBook(Book) returns (Response);
+    rpc FetchBook(Book) returns (Book);
     //rpc UpdateBook(Request) returns (Response);
     //rpc DeletedBook(Request) returns (Response);
     //rpc FetchBooks(google.protobuf.Empty) returns (RepeatedResponse);

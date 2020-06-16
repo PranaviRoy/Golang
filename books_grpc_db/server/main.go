@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
 	"log"
 	"net"
 
@@ -30,7 +30,7 @@ func main() {
 	}
 }
 
-func (s *server) AddBook(ctx context.Context, request *proto.Request) (*proto.Response, error) {
+func (s *server) AddBook(ctx context.Context, request *proto.Book) (*proto.Response, error) {
 	db := database.Conn()
 
 	insForm, err := db.Prepare("INSERT INTO books(name, author, publicationyear, isbn) VALUES( ?, ?, ?, ?)")
@@ -50,10 +50,25 @@ func (s *server) AddBook(ctx context.Context, request *proto.Request) (*proto.Re
 	if err != nil {
 		log.Fatal(err)
 	}
-	//request.Id = int64(lastID)
+	request.Id = int64(lastID)
 	log.Printf("ID = %d, affected = %d\n", lastID, rowCnt)
-	//log.Println("INSERT: Id: ", request.Id, insForm)
+	log.Println("INSERT: Id: ", request.Id, insForm)
 
 	defer db.Close()
 	return &proto.Response{Result: "Added book successfully!"}, nil
+}
+
+func (s *server) FetchBook(ctx context.Context, request *proto.Book) (*proto.Book, error) {
+	db := database.Conn()
+	defer db.Close()
+
+	book := proto.Book{}
+	err := db.QueryRow("select * FROM books where id=?", request.GetId()).Scan(&book.Id, &book.Name, &book.Author, &book.Publicationyear, &book.Isbn)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("Request successful!")
+		fmt.Println(&book)
+	}
+	return &book, nil
 }
