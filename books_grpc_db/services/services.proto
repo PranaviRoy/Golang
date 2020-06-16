@@ -1,0 +1,29 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+package services;
+option go_package = ".;proto";
+
+message Request {
+    string name = 1;
+    string author = 2;
+    string publicationyear = 3;
+    int64 isbn = 4;
+}
+
+message Response {
+    string result = 1;
+}
+
+message Empty {}
+
+message RepeatedResponse {
+    repeated Response books = 1;
+}
+
+service Operations {
+    rpc AddBook(Request) returns (Response);
+    rpc FetchBook(Request) returns (Response);
+    rpc UpdateBook(Request) returns (Response);
+    rpc DeletedBook(Request) returns (Response);
+    rpc FetchBooks(google.protobuf.Empty) returns (RepeatedResponse);
+}
