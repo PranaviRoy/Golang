@@ -1,18 +1,19 @@
 package handlers
 
 import (
-	"fmt"
-	"net/http"
-"strconv"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/books_grpc_db/connector"
 	proto "github.com/golang/books_grpc_db/services"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-//AddBookHandler creates a new record in the database 
+//AddBookHandler creates a new record in the database
 func AddBookHandler(ctx *gin.Context) {
 	client := connector.Connection()
 
@@ -45,6 +46,20 @@ func FetchBookHandler(ctx *gin.Context) {
 	}
 	req := &proto.Book{Id: int64(bookID)}
 	if response, err := client.FetchBook(ctx, req); err == nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"result": response,
+		})
+	} else {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+}
+
+//FetchBooksHandler handles the request to return the details of all the books in the table
+func FetchBooksHandler(ctx *gin.Context) {
+	client := connector.Connection()
+
+	req := &emptypb.Empty{}
+	if response, err := client.FetchBooks(ctx, req); err == nil {
 		ctx.JSON(http.StatusOK, gin.H{
 			"result": response,
 		})

@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"log"
 	"net"
+//	"net/http"
 
+//	"github.com/gin-gonic/gin"
+//	"github.com/golang/books_grpc_db/connector"
 	"github.com/golang/books_grpc_db/database"
 	proto "github.com/golang/books_grpc_db/services"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	//"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type server struct{}
@@ -71,4 +74,26 @@ func (s *server) FetchBook(ctx context.Context, request *proto.Book) (*proto.Boo
 		fmt.Println(&book)
 	}
 	return &book, nil
+}
+
+func (s *server) FetchBooks(ctx context.Context, Empty *emptypb.Empty) (*proto.RepeatedResponse, error) {
+	db := database.Conn()
+	defer db.Close()
+
+	row, err := db.QueryContext(ctx, "select * FROM books")
+	if err != nil {
+		panic(err.Error())
+	}
+	var books []*proto.Book
+
+	for row.Next() {
+		book := &proto.Book{}
+		rowscan := row.Scan(&book.Id, &book.Name, &book.Author, &book.Publicationyear, &book.Isbn)
+		if rowscan != nil {
+			panic(rowscan.Error())
+		}
+		books = append(books, book)
+	}
+
+	return &proto.RepeatedResponse{Books: books}, nil
 }
