@@ -1,2 +1,2 @@
 # Golang
-My Golang projects
+My Go projects
