@@ -80,7 +80,7 @@ func UpdateBookHandler(ctx *gin.Context) {
 	}
 	updatedBook := proto.Book{Id: int64(bookID)}
 	reqBody, err := ioutil.ReadAll(ctx.Request.Body)
-	fmt.Println(&reqBody)
+	fmt.Println(string(reqBody))
 	if err != nil {
 		fmt.Println("Kindly check the book structure")
 	}
@@ -88,10 +88,28 @@ func UpdateBookHandler(ctx *gin.Context) {
 	if res := json.Unmarshal(reqBody, &updatedBook); res != nil {
 		fmt.Println(res)
 	}
-	
+
 	if response, err := client.UpdateBook(ctx, &updatedBook); err == nil {
 		ctx.JSON(http.StatusOK, gin.H{
-			"result": fmt.Sprint(response),
+			"result": fmt.Sprint(response.Result),
+		})
+	} else {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+}
+
+//DeleteBookHandler deletes a particular tuple
+func DeleteBookHandler(ctx *gin.Context) {
+	client := connector.Connection()
+
+	clusterID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		fmt.Println("Error in parsing cluster id param")
+	}
+	req := &proto.Book{Id: int64(clusterID)}
+	if response, err := client.DeleteBook(ctx, req); err == nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"Result": fmt.Sprint(response.Result),
 		})
 	} else {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

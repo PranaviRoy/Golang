@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net"
-//	"net/http"
 
-//	"github.com/gin-gonic/gin"
-//	"github.com/golang/books_grpc_db/connector"
+	//	"net/http"
+
+	//	"github.com/gin-gonic/gin"
+	//	"github.com/golang/books_grpc_db/connector"
 	"github.com/golang/books_grpc_db/database"
 	proto "github.com/golang/books_grpc_db/services"
 	"golang.org/x/net/context"
@@ -55,7 +56,7 @@ func (s *server) AddBook(ctx context.Context, request *proto.Book) (*proto.Respo
 	}
 	request.Id = int64(lastID)
 	log.Printf("ID = %d, affected = %d\n", lastID, rowCnt)
-	log.Println("INSERT: Id: ", request.Id, insForm)
+	log.Println("INSERT: Id: ", request.Id)
 
 	defer db.Close()
 	return &proto.Response{Result: "Added book successfully!"}, nil
@@ -125,4 +126,31 @@ func (s *server) UpdateBook(ctx context.Context, request *proto.Book) (*proto.Re
 	fmt.Println("Updated book successfully! ")
 
 	return &proto.Response{Result: "Updated book successfully!"}, nil
+}
+
+func (s *server) DeleteBook(ctx context.Context, request *proto.Book) (*proto.Response, error) {
+	db := database.Conn()
+	insForm, err := db.Prepare("DELETE FROM books WHERE id = ?")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	res, err := insForm.Exec(request.GetId())
+	if err != nil {
+		log.Fatal(err)
+	}
+	lastID, err := res.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+	}
+	rowCnt, err := res.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	request.Id = int64(lastID)
+	log.Printf("ID = %d, affected = %d\n", lastID, rowCnt)
+	log.Println("DELETE: Id: ", request.Id)
+
+	defer db.Close()
+	return &proto.Response{Result: " Book deleted successfully"}, nil
 }

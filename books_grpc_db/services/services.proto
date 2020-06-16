@@ -25,6 +25,6 @@ service Operations {
     rpc AddBook(Book) returns (Response);
     rpc FetchBook(Book) returns (Book);
     rpc UpdateBook(Book) returns (Response);
-    //rpc DeletedBook(Request) returns (Response);
+    rpc DeleteBook(Book) returns (Response);
     rpc FetchBooks(google.protobuf.Empty) returns (RepeatedResponse);
 }
